@@ -254,7 +254,7 @@
         });
     }
 
-    // --- NUEVA FUNCIÓN: IMPORTAR CSV MASIVO ---
+// --- FUNCIÓN DE IMPORTACIÓN REPARADA PARA TILDES ---
     document.getElementById('csv-file').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -262,26 +262,30 @@
         const reader = new FileReader();
         reader.onload = function(event) {
             const content = event.target.result;
-            const lines = content.split('\n');
+            // Divide por saltos de línea (Windows o Mac)
+            const lines = content.split(/\r?\n/); 
             let count = 0;
 
-            // Empezamos en 1 para saltar los encabezados (Fecha, Exp, Zona, etc.)
             for (let i = 1; i < lines.length; i++) {
-                const data = lines[i].split(',');
+                // DETECTA AUTOMÁTICAMENTE: Coma o Punto y Coma
+                const delimiter = lines[i].includes(';') ? ';' : ',';
+                const data = lines[i].split(delimiter);
+                
                 if (data.length < 7) continue;
 
                 const gValue = parseInt(data[6]) || 0;
-                const tValue = data[5].trim();
+                const tRaw = data[5] ? data[5].trim().replace('?', '') : "1.0";
 
+                // Objeto con limpieza de texto para tildes
                 const record = {
                     f: data[0].trim(),
                     e: data[1].trim(),
                     z: data[2].trim(),
-                    r: data[3].trim(),
+                    r: data[3].trim(), // Aquí ya respeta las tildes
                     c: parseInt(data[4]) || 0,
-                    t: tValue.includes('h') ? tValue : tValue + "h",
+                    t: tRaw.includes('h') ? tRaw : tRaw + "h",
                     g: gValue,
-                    oph: parseInt(data[7]) || Math.floor(gValue / parseFloat(tValue)),
+                    oph: Math.floor(gValue / (parseFloat(tRaw) || 1)),
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
@@ -289,9 +293,11 @@
                 count++;
             }
             showToast();
-            alert(`¡Importación exitosa, Bryan! Se han procesado ${count} filas.`);
+            alert(`¡Éxito! Se subieron ${count} filas respetando tildes y formato.`);
         };
-        reader.readAsText(file);
+        
+        // ESTA LÍNEA ES LA MAGIA: Lee tildes de Excel (Windows-1252 es el estándar de Excel ES)
+        reader.readAsText(file, 'ISO-8859-1'); 
     });
 
     // --- RESTO DE TUS FUNCIONES (Sin cambios) ---
