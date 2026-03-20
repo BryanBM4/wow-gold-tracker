@@ -402,12 +402,28 @@
             data: {
                 labels: last10.map(d => d.r),
                 datasets: [{ 
-                    label: 'Oro', data: last10.map(d => d.g), borderColor: '#f8b700', backgroundColor: 'rgba(248, 183, 0, 0.1)', fill: true, tension: 0.35, pointRadius: 5
+                    label: 'Oro', 
+                    data: last10.map(d => d.g), 
+                    borderColor: '#f8b700', 
+                    backgroundColor: 'rgba(248, 183, 0, 0.1)', 
+                    fill: true, 
+                    tension: 0.35, 
+                    pointRadius: 5 
                 }]
             },
             options: { 
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#aaa' } } },
+                responsive: true, 
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { 
+                        ticks: { color: '#fff' }, 
+                        grid: { color: 'rgba(255, 255, 255, 0.1)', display: true } // Esto activa las líneas horizontales
+                    }, 
+                    x: { 
+                        ticks: { color: '#aaa' }, 
+                        grid: { display: false } // Las verticales suelen estorbar, mejor apagadas
+                    } 
+                },
                 plugins: { legend: { display: false } }
             }
         });
