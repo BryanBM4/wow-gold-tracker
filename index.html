@@ -99,10 +99,14 @@
         #achievement-toast.show { visibility: visible; animation: slideDown 0.5s, fadeOut 0.5s 4.5s; }
         @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
         /* --- ESTILO DE LA GALERÍA DE MEDALLAS --- */
+                /* Ajuste para las medallas dentro del panel oscuro */
         .medal-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 15px; margin-top: 20px; padding: 15px;
-            background: rgba(0, 0, 0, 0.3); border-radius: 10px; border: 1px solid #444;
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 20px;
+            background: transparent !important; /* Quitamos el fondo viejo */
+            border: none !important; /* Quitamos el borde viejo */
+            margin-top: 0;
         }
         .medal {
             text-align: center; opacity: 0.5; filter: grayscale(100%);
@@ -113,6 +117,41 @@
             transform: scale(1.05); text-shadow: 0 0 5px #ffb100;
         }
         .medal i { font-size: 2.5em; display: block; margin-bottom: 5px; }
+
+        /* --- ESTILO UNIFICADO (FUSIÓN GOBLIN) --- */
+        .unified-panel {
+            background: rgba(0, 0, 0, 0.6); /* Más oscuro para resaltar */
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(248, 183, 0, 0.2); /* Borde dorado sutil */
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* Estilo de la Mini Tabla dentro del panel */
+        .mini-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .mini-table th {
+            background: rgba(248, 183, 0, 0.1);
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            padding: 12px;
+            border-bottom: 1px solid rgba(248, 183, 0, 0.3);
+        }
+
+        /* Efecto de resaltado al pasar el mouse (Hover) */
+        #miniTableBody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transition: background 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -232,32 +271,35 @@
         <div id="achieve-title" style="font-size: 1.2em; font-weight: bold; margin-top: 5px;">Título del Logro</div>
     </div>
 
-    <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444;">🏅 Galería de Medallas</h3>
-        <div class="medal-grid" id="medal-container">
-            <div class="medal" id="medal-500k"><i class="fas fa-seedling"></i>Cosechador Novato</div>
-            <div class="medal" id="medal-1M"><i class="fas fa-coins"></i>Millonario</div>
-            <div class="medal" id="medal-100k-oph"><i class="fas fa-bolt"></i>Eficiencia 100k</div>
-            <div class="medal" id="medal-75-pct"><i class="fas fa-star-half-alt"></i>Casi la Ficha</div>
-            <div class="medal" id="medal-goal"><i class="fas fa-trophy"></i>Libertad Total</div>
+    <!-- SECCIÓN DE MEDALLAS UNIFICADA -->
+        <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444; padding-bottom: 5px;">🏅 Galería de Medallas</h3>
+        <div class="unified-panel">
+            <div class="medal-grid" id="medal-container">
+                <div class="medal" id="medal-500k"><i class="fas fa-seedling"></i>Cosechador Novato</div>
+                <div class="medal" id="medal-1M"><i class="fas fa-coins"></i>Millonario</div>
+                <div class="medal" id="medal-100k-oph"><i class="fas fa-bolt"></i>Eficiencia 100k</div>
+                <div class="medal" id="medal-75-pct"><i class="fas fa-star-half-alt"></i>Casi la Ficha</div>
+                <div class="medal" id="medal-goal"><i class="fas fa-trophy"></i>Libertad Total</div>
+            </div>
         </div>
-    <!-- MINI TABLA DE SESIONES RECIENTES -->
-        <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444;">📜 Últimos Hallazgos</h3>
-        <div style="background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid #333; overflow: hidden; margin-bottom: 25px;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
-                <thead style="background: rgba(248, 183, 0, 0.1); color: var(--gold); font-family: 'Cinzel';">
+
+        <!-- SECCIÓN DE MINI TABLA UNIFICADA -->
+        <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444; padding-bottom: 5px;">📜 Últimos Hallazgos</h3>
+        <div class="unified-panel">
+            <table class="mini-table">
+                <thead>
                     <tr>
-                        <th style="padding: 12px; width: 25%; text-align: center;">Exp</th>
-                        <th style="padding: 12px; width: 25%; text-align: center;">Material</th>
-                        <th style="padding: 12px; width: 25%; text-align: center;">Oro</th>
-                        <th style="padding: 12px; width: 25%; text-align: center;">OPH</th>
+                        <th style="width: 25%; text-align: center;">Exp</th>
+                        <th style="width: 25%; text-align: center;">Material</th>
+                        <th style="width: 25%; text-align: center;">Oro</th>
+                        <th style="width: 25%; text-align: center;">OPH</th>
                     </tr>
                 </thead>
                 <tbody id="miniTableBody">
-                    <!-- Aquí se cargarán los 5 más recientes -->
+                    <!-- Los datos se cargan vía JS -->
                 </tbody>
             </table>
         </div>
-
 <script>
     // --- FIREBASE CONFIG ---
     const firebaseConfig = {
@@ -417,8 +459,9 @@
 
     function render(filtered = farmData) {
         // --- LÓGICA MINI TABLA RECIENTES ---
+    // Asegúrate de que este nombre coincida con el ID del HTML que acabas de pegar
     const miniTableBody = document.getElementById('miniTableBody');
-    const recientes = farmData.slice(0, 5); // Tomamos solo los 5 más nuevos
+    const recientes = farmData.slice(0, 5); 
     
     miniTableBody.innerHTML = recientes.map(d => `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
