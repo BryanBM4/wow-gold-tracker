@@ -165,6 +165,18 @@
         width: 100%;
         display: block;
         }
+
+        /* Animación de pulsación para las barras */
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(248, 183, 0, 0.3); filter: brightness(1); }
+            50% { box-shadow: 0 0 20px rgba(248, 183, 0, 0.6); filter: brightness(1.2); }
+        }
+        @keyframes blueGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 195, 255, 0.3); filter: brightness(1); }
+            50% { box-shadow: 0 0 20px rgba(0, 195, 255, 0.6); filter: brightness(1.2); }
+        }
+        .bar-tww-glow { animation: goldGlow 4s infinite ease-in-out; }
+        .bar-df-glow { animation: blueGlow 4s infinite ease-in-out; }
     </style>
 </head>
 <body>
@@ -259,6 +271,29 @@
             <div style="display: flex; gap: 20px; justify-content: center;">
                 <button class="btn-gold btn-history" style="max-width:300px;" onclick="openModal()">📜 Mostrar Historial</button>
                 <button class="btn-gold btn-excel" style="max-width:300px;" onclick="exportToCSV()">📥 Descargar Historial</button>
+            </div>
+
+            <h3 class="section-title">📊 Comparativa: TWW vs. DF</h3>
+            <div class="unified-panel">
+                <div style="margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #00c3ff; font-weight: bold; font-family: 'Cinzel'; letter-spacing: 1px;">Dragonflight</span>
+                        <span id="gold-df" style="color: #00c3ff; font-weight: bold;">0g</span>
+                    </div>
+                    <div class="progress-container" style="height: 24px; background: rgba(0,195,255,0.05); border-color: rgba(0,195,255,0.2); border-radius: 12px;">
+                        <div id="bar-df" class="progress-bar bar-df-glow" style="background: linear-gradient(90deg, #004e92, #00c3ff); width: 0%; border-radius: 12px;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--gold); font-weight: bold; font-family: 'Cinzel'; letter-spacing: 1px;">The War Within</span>
+                        <span id="gold-tww" style="color: var(--gold); font-weight: bold;">0g</span>
+                    </div>
+                    <div class="progress-container" style="height: 24px; background: rgba(248, 183, 0, 0.05); border-color: rgba(248, 183, 0, 0.2); border-radius: 12px;">
+                        <div id="bar-tww" class="progress-bar bar-tww-glow" style="background: linear-gradient(90deg, #b38600, #f8b700); width: 0%; border-radius: 12px;"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- SECCIÓN DE MEDALLAS UNIFICADA -->
@@ -501,6 +536,23 @@
             </tr>
         `).join('');
         updateStats();
+
+        // --- LÓGICA COMPARATIVA DE EXPANSIONES ---
+        const totalTWW = farmData.filter(d => d.e === 'TWW').reduce((acc, d) => acc + d.g, 0);
+        const totalDF = farmData.filter(d => d.e === 'DF').reduce((acc, d) => acc + d.g, 0);
+    
+        // Actualizar los textos de oro
+        document.getElementById('gold-tww').innerText = `${totalTWW.toLocaleString()}g`;
+        document.getElementById('gold-df').innerText = `${totalDF.toLocaleString()}g`;
+
+        // Calcular cuál es mayor para que la barra más grande llegue al 100%
+        const maxGold = Math.max(totalTWW, totalDF, 1); 
+    
+        // Animar las barras
+        setTimeout(() => {
+            document.getElementById('bar-tww').style.width = `${(totalTWW / maxGold) * 100}%`;
+            document.getElementById('bar-df').style.width = `${(totalDF / maxGold) * 100}%`;
+        }, 500);
     }
 
     function updateStats() {
