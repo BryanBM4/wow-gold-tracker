@@ -246,10 +246,10 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
                 <thead style="background: rgba(248, 183, 0, 0.1); color: var(--gold); font-family: 'Cinzel';">
                     <tr>
-                        <th style="padding: 10px;">Exp</th>
-                        <th>Material</th>
-                        <th>Oro</th>
-                        <th>OPH</th>
+                        <th style="padding: 12px; width: 25%; text-align: center;">Exp</th>
+                        <th style="padding: 12px; width: 25%; text-align: center;">Material</th>
+                        <th style="padding: 12px; width: 25%; text-align: center;">Oro</th>
+                        <th style="padding: 12px; width: 25%; text-align: center;">OPH</th>
                     </tr>
                 </thead>
                 <tbody id="miniTableBody">
@@ -422,12 +422,13 @@
     
     miniTableBody.innerHTML = recientes.map(d => `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <td style="padding: 12px 10px; text-align: center; color: #aaa;">${d.e}</td>
-            <td class="${getRarityClass(d.g)}" style="padding: 12px 10px; font-weight: bold;">${d.r} (x${d.c})</td>
-            <td style="padding: 12px 10px; color: var(--gold); text-align: center;">${d.g.toLocaleString()}g</td>
-            <td style="padding: 12px 10px; color: var(--success); text-align: center;">${d.oph.toLocaleString()}g</td>
+            <td style="padding: 12px 10px; text-align: center; color: #aaa; width: 25%;">${d.e}</td>
+            <td class="${getRarityClass(d.g)}" style="padding: 12px 10px; font-weight: bold; text-align: center; width: 25%;">${d.r} (x${d.c})</td>
+            <td style="padding: 12px 10px; color: var(--gold); text-align: center; width: 25%;">${d.g.toLocaleString()}g</td>
+            <td style="padding: 12px 10px; color: var(--success); text-align: center; width: 25%;">${d.oph.toLocaleString()}g</td>
         </tr>
     `).join('');
+    
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = filtered.map(d => `
             <tr>
