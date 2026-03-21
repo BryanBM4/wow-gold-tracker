@@ -420,7 +420,7 @@
     const miniTableBody = document.getElementById('miniTableBody');
     const recientes = farmData.slice(0, 5); // Tomamos solo los 5 más nuevos
     
-    miniTbody.innerHTML = recientes.map(d => `
+    miniTableBody.innerHTML = recientes.map(d => `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
             <td style="padding: 12px 10px; text-align: center; color: #aaa;">${d.e}</td>
             <td class="${getRarityClass(d.g)}" style="padding: 12px 10px; font-weight: bold;">${d.r} (x${d.c})</td>
