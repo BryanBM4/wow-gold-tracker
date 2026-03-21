@@ -120,13 +120,15 @@
 
         /* --- ESTILO UNIFICADO (FUSIÓN GOBLIN) --- */
         .unified-panel {
-            background: rgba(0, 0, 0, 0.6); /* Más oscuro para resaltar */
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            border: 1px solid rgba(248, 183, 0, 0.2); /* Borde dorado sutil */
+            border: 1px solid rgba(248, 183, 0, 0.2);
             padding: 20px;
-            margin-bottom: 25px;
+            margin: 0 auto 25px auto; /* Centra el panel y añade margen abajo */
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            box-sizing: border-box; /* Crucial para que el padding no lo ensanche */
+            width: 100%; /* Ocupará el ancho exacto que le deje el contenedor padre */
         }
 
         /* Estilo de la Mini Tabla dentro del panel */
@@ -151,6 +153,17 @@
         #miniTableBody tr:hover {
             background: rgba(255, 255, 255, 0.03);
             transition: background 0.3s ease;
+        }
+        /* Esta clase alineará tus títulos con los paneles */
+        .section-title {
+        font-family: 'Cinzel', serif;
+        color: #eee;
+        margin-top: 40px; /* Espacio con lo de arriba */
+        margin-bottom: 15px; /* Espacio con el panel oscuro */
+        border-bottom: 1px solid rgba(248, 183, 0, 0.3);
+        padding-bottom: 8px;
+        width: 100%;
+        display: block;
         }
     </style>
 </head>
@@ -247,6 +260,37 @@
                 <button class="btn-gold btn-history" style="max-width:300px;" onclick="openModal()">📜 Mostrar Historial</button>
                 <button class="btn-gold btn-excel" style="max-width:300px;" onclick="exportToCSV()">📥 Descargar Historial</button>
             </div>
+
+            <!-- SECCIÓN DE MEDALLAS UNIFICADA -->
+        <h3 class="section-title">🏅 Galería de Medallas</h3>
+        <div class="unified-panel">
+            <div class="medal-grid" id="medal-container">
+                <div class="medal" id="medal-500k"><i class="fas fa-seedling"></i>Cosechador Novato</div>
+                <div class="medal" id="medal-1M"><i class="fas fa-coins"></i>Millonario</div>
+                <div class="medal" id="medal-100k-oph"><i class="fas fa-bolt"></i>Eficiencia 100k</div>
+                <div class="medal" id="medal-75-pct"><i class="fas fa-star-half-alt"></i>Casi la Ficha</div>
+                <div class="medal" id="medal-goal"><i class="fas fa-trophy"></i>Libertad Total</div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE MINI TABLA UNIFICADA -->
+        <h3 class="section-title">📜 Últimos Hallazgos</h3>
+        <div class="unified-panel">
+            <table class="mini-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%; text-align: center;">Exp</th>
+                        <th style="width: 25%; text-align: center;">Material</th>
+                        <th style="width: 25%; text-align: center;">Oro</th>
+                        <th style="width: 25%; text-align: center;">OPH</th>
+                    </tr>
+                </thead>
+                <tbody id="miniTableBody">
+                    <!-- Los datos se cargan vía JS -->
+                </tbody>
+            </table>
+        </div>
+        
         </div>
     </div>
 
@@ -271,35 +315,6 @@
         <div id="achieve-title" style="font-size: 1.2em; font-weight: bold; margin-top: 5px;">Título del Logro</div>
     </div>
 
-    <!-- SECCIÓN DE MEDALLAS UNIFICADA -->
-        <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444; padding-bottom: 5px;">🏅 Galería de Medallas</h3>
-        <div class="unified-panel">
-            <div class="medal-grid" id="medal-container">
-                <div class="medal" id="medal-500k"><i class="fas fa-seedling"></i>Cosechador Novato</div>
-                <div class="medal" id="medal-1M"><i class="fas fa-coins"></i>Millonario</div>
-                <div class="medal" id="medal-100k-oph"><i class="fas fa-bolt"></i>Eficiencia 100k</div>
-                <div class="medal" id="medal-75-pct"><i class="fas fa-star-half-alt"></i>Casi la Ficha</div>
-                <div class="medal" id="medal-goal"><i class="fas fa-trophy"></i>Libertad Total</div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE MINI TABLA UNIFICADA -->
-        <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444; padding-bottom: 5px;">📜 Últimos Hallazgos</h3>
-        <div class="unified-panel">
-            <table class="mini-table">
-                <thead>
-                    <tr>
-                        <th style="width: 25%; text-align: center;">Exp</th>
-                        <th style="width: 25%; text-align: center;">Material</th>
-                        <th style="width: 25%; text-align: center;">Oro</th>
-                        <th style="width: 25%; text-align: center;">OPH</th>
-                    </tr>
-                </thead>
-                <tbody id="miniTableBody">
-                    <!-- Los datos se cargan vía JS -->
-                </tbody>
-            </table>
-        </div>
 <script>
     // --- FIREBASE CONFIG ---
     const firebaseConfig = {
