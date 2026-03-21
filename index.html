@@ -141,6 +141,12 @@
                     <span id="time-to-goal" style="font-size: 1.8em; font-weight: bold; color: var(--info); display:block;">--h</span>
                     <span style="font-size:0.8em; color:#888">Días/Horas restantes</span>
                 </div>
+                <!-- PANEL DE ZONA RECOMENDADA (NUEVO) -->
+                <div class="panel" style="border-color: #ffb100; background: rgba(255, 177, 0, 0.05);">
+                    <span class="stat-label">🚀 Zona Recomendada</span>
+                    <span id="best-zone" style="font-size: 1.5em; font-weight: bold; color: #ffb100; display:block; margin-top:5px;">Analizando...</span>
+                    <span id="best-oph" style="font-size:0.8em; color:#888">Promedio: -- g/h</span>
+                </div>
             </div>
 
             <div class="timer-box">
@@ -391,6 +397,41 @@
             } else { timeDisplay.innerText = horasTotales.toFixed(1) + "h"; }
         } else { timeDisplay.innerText = faltante <= 0 ? "¡LISTO!" : "--h"; }
         updateChart();
+        // --- LÓGICA DE MEJOR ZONA (NUEVA) ---
+        if (farmData.length > 0) {
+            const zonasStats = {};
+            
+            // Agrupamos el oro y tiempo por cada zona
+            farmData.forEach(d => {
+                if (!zonasStats[d.z]) {
+                    zonasStats[d.z] = { totalOro: 0, totalOph: 0, conteo: 0 };
+                }
+                zonasStats[d.z].totalOph += d.oph;
+                zonasStats[d.z].conteo++;
+            });
+
+            let mejorZona = "";
+            let maxPromedio = 0;
+
+            // Buscamos la zona con el promedio OPH más alto
+            for (const zona in zonasStats) {
+                const promedio = zonasStats[zona].totalOph / zonasStats[zona].conteo;
+                if (promedio > maxPromedio) {
+                    maxPromedio = promedio;
+                    mejorZona = zona;
+                }
+            }
+
+            // Actualizamos el panel visualmente
+            const zoneDisplay = document.getElementById('best-zone');
+            const ophDisplay = document.getElementById('best-oph');
+            
+            if (mejorZona) {
+                zoneDisplay.innerText = mejorZona;
+                zoneDisplay.style.textShadow = "0 0 10px #ffb100";
+                ophDisplay.innerText = `Promedio: ${Math.floor(maxPromedio).toLocaleString()} g/h`;
+            }
+        }
     }
 
     function updateChart() {
