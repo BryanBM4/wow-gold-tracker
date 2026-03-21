@@ -420,12 +420,12 @@
     const miniTableBody = document.getElementById('miniTableBody');
     const recientes = farmData.slice(0, 5); // Tomamos solo los 5 más nuevos
     
-    miniTableBody.innerHTML = recientes.map(d => `
-        <tr style="border-bottom: 1px solid #222;">
+    miniTbody.innerHTML = recientes.map(d => `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
             <td style="padding: 12px 10px; text-align: center; color: #aaa;">${d.e}</td>
-            <td class="${getRarityClass(d.g)}" style="font-weight: bold;">${d.r}</td>
-            <td style="color: var(--gold); text-align: center;">${d.g.toLocaleString()}g</td>
-            <td style="color: var(--success); text-align: center;">${d.oph.toLocaleString()}g</td>
+            <td class="${getRarityClass(d.g)}" style="padding: 12px 10px; font-weight: bold;">${d.r} (x${d.c})</td>
+            <td style="padding: 12px 10px; color: var(--gold); text-align: center;">${d.g.toLocaleString()}g</td>
+            <td style="padding: 12px 10px; color: var(--success); text-align: center;">${d.oph.toLocaleString()}g</td>
         </tr>
     `).join('');
         const tbody = document.getElementById('tableBody');
