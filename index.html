@@ -87,6 +87,16 @@
             text-align: center;
             margin-bottom: 25px;
         }
+        /* --- ESTILO DE LOGROS (WOW STYLE) --- */
+        #achievement-toast {
+            visibility: hidden; min-width: 300px; background: rgba(0, 0, 0, 0.9);
+            color: #ffb100; border: 2px solid #ffb100; border-radius: 10px;
+            padding: 20px; position: fixed; z-index: 3000; left: 50%; top: 20px;
+            transform: translateX(-50%); text-align: center;
+            box-shadow: 0 0 20px rgba(255, 177, 0, 0.5); font-family: 'Cinzel';
+        }
+        #achievement-toast.show { visibility: visible; animation: slideDown 0.5s, fadeOut 0.5s 4.5s; }
+        @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
     </style>
 </head>
 <body>
@@ -200,6 +210,11 @@
     </div>
 
     <div id="toast">💰 ¡Operación Exitosa!</div>
+
+    <div id="achievement-toast">
+        <div style="font-size: 0.8em; color: #aaa;">¡Logro Desbloqueado!</div>
+        <div id="achieve-title" style="font-size: 1.2em; font-weight: bold; margin-top: 5px;">Título del Logro</div>
+    </div>
 
 <script>
     // --- FIREBASE CONFIG ---
@@ -432,6 +447,32 @@
                 ophDisplay.innerText = `Promedio: ${Math.floor(maxPromedio).toLocaleString()} g/h`;
             }
         }
+        // --- SISTEMA DE LOGROS (NUEVO) ---
+        const totalGoldLogro = farmData.reduce((s, d) => s + d.g, 0);
+        const maxOphSession = Math.max(...farmData.map(d => d.oph), 0);
+        const metaPorcentaje = (totalGoldLogro / TOKEN_GOAL) * 100;
+
+        function lanzarLogro(titulo) {
+            const toast = document.getElementById('achievement-toast');
+            const title = document.getElementById('achieve-title');
+            
+            // Evitar que el mismo logro salte mil veces en la misma sesión
+            if (localStorage.getItem('logro_' + titulo)) return;
+
+            title.innerText = titulo;
+            toast.className = "show";
+            sounds.levelUp.play();
+            
+            localStorage.setItem('logro_' + titulo, 'true');
+            setTimeout(() => { toast.className = ""; }, 5000);
+        }
+
+        // Definición de Hitos
+        if (totalGoldLogro >= 500000) lanzarLogro("Cosechador Novato (500k)");
+        if (totalGoldLogro >= 1000000) lanzarLogro("Millonario de Azeroth (1M)");
+        if (maxOphSession >= 100000) lanzarLogro("Maestro de la Eficiencia (100k/h)");
+        if (metaPorcentaje >= 75) lanzarLogro("¡Casi en la Meta! (75%)");
+        if (metaPorcentaje >= 100) lanzarLogro("¡Libertad Financiera! (Meta Cumplida)");
     }
 
     function updateChart() {
