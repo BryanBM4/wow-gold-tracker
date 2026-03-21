@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root {
@@ -97,6 +98,21 @@
         }
         #achievement-toast.show { visibility: visible; animation: slideDown 0.5s, fadeOut 0.5s 4.5s; }
         @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
+        /* --- ESTILO DE LA GALERÍA DE MEDALLAS --- */
+        .medal-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px; margin-top: 20px; padding: 15px;
+            background: rgba(0, 0, 0, 0.3); border-radius: 10px; border: 1px solid #444;
+        }
+        .medal {
+            text-align: center; opacity: 0.3; filter: grayscale(100%);
+            transition: all 0.5s ease; font-size: 0.7em; color: #aaa;
+        }
+        .medal.unlocked {
+            opacity: 1; filter: grayscale(0%); color: #ffb100;
+            transform: scale(1.05); text-shadow: 0 0 5px #ffb100;
+        }
+        .medal i { font-size: 2.5em; display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -215,6 +231,15 @@
         <div style="font-size: 0.8em; color: #aaa;">¡Logro Desbloqueado!</div>
         <div id="achieve-title" style="font-size: 1.2em; font-weight: bold; margin-top: 5px;">Título del Logro</div>
     </div>
+
+    <h3 style="font-family: 'Cinzel'; color: #eee; margin-top: 30px; border-bottom: 1px solid #444;">🏅 Galería de Medallas</h3>
+        <div class="medal-grid" id="medal-container">
+            <div class="medal" id="medal-500k"><i class="fas fa-seedling"></i>Cosechador Novato</div>
+            <div class="medal" id="medal-1M"><i class="fas fa-coins"></i>Millonario</div>
+            <div class="medal" id="medal-100k-oph"><i class="fas fa-bolt"></i>Eficiencia 100k</div>
+            <div class="medal" id="medal-75-pct"><i class="fas fa-star-half-alt"></i>Casi la Ficha</div>
+            <div class="medal" id="medal-goal"><i class="fas fa-trophy"></i>Libertad Total</div>
+        </div>
 
 <script>
     // --- FIREBASE CONFIG ---
@@ -473,6 +498,16 @@
         if (maxOphSession >= 100000) lanzarLogro("Maestro de la Eficiencia (100k/h)");
         if (metaPorcentaje >= 75) lanzarLogro("¡Casi en la Meta! (75%)");
         if (metaPorcentaje >= 100) lanzarLogro("¡Libertad Financiera! (Meta Cumplida)");
+
+        // --- ACTUALIZAR GALERÍA DE MEDALLAS ---
+        function actualizarMedallas() {
+            if (totalGoldLogro >= 500000) document.getElementById('medal-500k').classList.add('unlocked');
+            if (totalGoldLogro >= 1000000) document.getElementById('medal-1M').classList.add('unlocked');
+            if (maxOphSession >= 100000) document.getElementById('medal-100k-oph').classList.add('unlocked');
+            if (metaPorcentaje >= 75) document.getElementById('medal-75-pct').classList.add('unlocked');
+            if (metaPorcentaje >= 100) document.getElementById('medal-goal').classList.add('unlocked');
+        }
+        actualizarMedallas();
     }
 
     function updateChart() {
