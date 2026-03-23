@@ -177,6 +177,12 @@
         }
         .bar-tww-glow { animation: goldGlow 4s infinite ease-in-out; }
         .bar-df-glow { animation: blueGlow 4s infinite ease-in-out; }
+
+        /* Colores dinámicos para la barra de meta */
+        .progress-bar.low { background: linear-gradient(90deg, #5d4037, #8d6e63); } /* Bronce / Madera */
+        .progress-bar.mid { background: linear-gradient(90deg, #757575, #bdbdbd); } /* Plata */
+        .progress-bar.high { background: linear-gradient(90deg, #b38600, #f8b700); } /* Oro */
+        .progress-bar.epic { background: linear-gradient(90deg, #ffea00, #ffffff); box-shadow: 0 0 20px #fff700; } /* Diamante / Legendario */
     </style>
 </head>
 <body>
@@ -557,17 +563,44 @@
 
     function updateStats() {
         const totalGold = farmData.reduce((s, d) => s + d.g, 0);
-        document.getElementById('token-bar').style.width = Math.min((totalGold/TOKEN_GOAL)*100, 100) + '%';
+        
+        // --- BARRA DE PROGRESO Y COLORES EVOLUTIVOS ---
+        const tokenBar = document.getElementById('token-bar');
+        const metaPorcentaje = (totalGold / TOKEN_GOAL) * 100;
+        tokenBar.style.width = Math.min(metaPorcentaje, 100) + '%';
+
+        // [NUEVO] Cambiamos el color de la barra según el progreso
+        tokenBar.classList.remove('low', 'mid', 'high', 'epic');
+        if (metaPorcentaje < 25) {
+            tokenBar.style.background = 'linear-gradient(90deg, #5d4037, #8d6e63)'; // Bronce
+        } else if (metaPorcentaje < 60) {
+            tokenBar.style.background = 'linear-gradient(90deg, #757575, #bdbdbd)'; // Plata
+        } else {
+            tokenBar.style.background = 'linear-gradient(90deg, #b38600, #f8b700)'; // Oro
+        }
+
         document.getElementById('token-status').innerText = `${totalGold.toLocaleString()} / ${TOKEN_GOAL.toLocaleString()}g`;
+        
         const hoy = new Date().toLocaleDateString();
         const diario = farmData.filter(d => d.f === hoy).reduce((s, d) => s + d.g, 0);
         document.getElementById('daily-value').innerText = diario.toLocaleString() + 'g';
         document.getElementById('daily-target').innerText = `Objetivo: ${(DAILY_GOAL/1000)}k`;
+        
         if (diario >= DAILY_GOAL && oldDailyGold < DAILY_GOAL) sounds.levelUp.play();
         oldDailyGold = diario;
+        
         const faltante = TOKEN_GOAL - totalGold;
+        const statusEl = document.getElementById('token-status');
+        if (faltante > 0) {
+            // Calcula cuántos millones faltan con un decimal
+            const faltanteM = (faltante / 1000000).toFixed(1);
+            statusEl.title = `¡Ánimo Bryan! Faltan ${faltanteM}M para los 50M y la Libertad Total 🚀`;
+        } else {
+            statusEl.title = "¡OBJETIVO CUMPLIDO! Eres el Magnate de Azeroth 👑";
+        }
         const validSessions = farmData.filter(d => d.oph > 0);
         const avgOPH = validSessions.length > 0 ? (validSessions.reduce((s, d) => s + d.oph, 0) / validSessions.length) : 0;
+        
         const timeDisplay = document.getElementById('time-to-goal');
         if (faltante > 0 && avgOPH > 0) {
             const horasTotales = faltante / avgOPH;
@@ -576,12 +609,12 @@
                 timeDisplay.innerText = `${d}d ${h}h`;
             } else { timeDisplay.innerText = horasTotales.toFixed(1) + "h"; }
         } else { timeDisplay.innerText = faltante <= 0 ? "¡LISTO!" : "--h"; }
+        
         updateChart();
-        // --- LÓGICA DE MEJOR ZONA (NUEVA) ---
+
+        // --- LÓGICA DE MEJOR ZONA ---
         if (farmData.length > 0) {
             const zonasStats = {};
-            
-            // Agrupamos el oro y tiempo por cada zona
             farmData.forEach(d => {
                 if (!zonasStats[d.z]) {
                     zonasStats[d.z] = { totalOro: 0, totalOph: 0, conteo: 0 };
@@ -592,8 +625,6 @@
 
             let mejorZona = "";
             let maxPromedio = 0;
-
-            // Buscamos la zona con el promedio OPH más alto
             for (const zona in zonasStats) {
                 const promedio = zonasStats[zona].totalOph / zonasStats[zona].conteo;
                 if (promedio > maxPromedio) {
@@ -602,32 +633,26 @@
                 }
             }
 
-            // Actualizamos el panel visualmente
             const zoneDisplay = document.getElementById('best-zone');
             const ophDisplay = document.getElementById('best-oph');
-            
             if (mejorZona) {
                 zoneDisplay.innerText = mejorZona;
                 zoneDisplay.style.textShadow = "0 0 10px #ffb100";
                 ophDisplay.innerText = `Promedio: ${Math.floor(maxPromedio).toLocaleString()} g/h`;
             }
         }
-        // --- SISTEMA DE LOGROS (NUEVO) ---
-        const totalGoldLogro = farmData.reduce((s, d) => s + d.g, 0);
-        const maxOphSession = Math.max(...farmData.map(d => d.oph), 0);
-        const metaPorcentaje = (totalGoldLogro / TOKEN_GOAL) * 100;
+
+        // --- SISTEMA DE LOGROS Y MEDALLAS ---
+        const totalGoldLogro = totalGold; // Reutilizamos totalGold
+        const maxOphSession = farmData.length > 0 ? Math.max(...farmData.map(d => d.oph), 0) : 0;
 
         function lanzarLogro(titulo) {
             const toast = document.getElementById('achievement-toast');
             const title = document.getElementById('achieve-title');
-            
-            // Evitar que el mismo logro salte mil veces en la misma sesión
             if (localStorage.getItem('logro_' + titulo)) return;
-
             title.innerText = titulo;
             toast.className = "show";
             sounds.levelUp.play();
-            
             localStorage.setItem('logro_' + titulo, 'true');
             setTimeout(() => { toast.className = ""; }, 5000);
         }
@@ -635,17 +660,27 @@
         // Definición de Hitos
         if (totalGoldLogro >= 500000) lanzarLogro("Cosechador Novato (500k)");
         if (totalGoldLogro >= 1000000) lanzarLogro("Millonario de Azeroth (1M)");
+        if (totalGoldLogro >= 10000000) lanzarLogro("Hito Épico: 10 Millones"); // [NUEVO]
         if (maxOphSession >= 100000) lanzarLogro("Maestro de la Eficiencia (100k/h)");
         if (metaPorcentaje >= 75) lanzarLogro("¡Casi en la Meta! (75%)");
         if (metaPorcentaje >= 100) lanzarLogro("¡Libertad Financiera! (Meta Cumplida)");
 
-        // --- ACTUALIZAR GALERÍA DE MEDALLAS ---
+        // ACTUALIZAR GALERÍA
         function actualizarMedallas() {
             if (totalGoldLogro >= 500000) document.getElementById('medal-500k').classList.add('unlocked');
             if (totalGoldLogro >= 1000000) document.getElementById('medal-1M').classList.add('unlocked');
             if (maxOphSession >= 100000) document.getElementById('medal-100k-oph').classList.add('unlocked');
             if (metaPorcentaje >= 75) document.getElementById('medal-75-pct').classList.add('unlocked');
-            if (metaPorcentaje >= 100) document.getElementById('medal-goal').classList.add('unlocked');
+            
+            // [NUEVO] Efecto especial para la copa si llegas a 10M aunque falte para los 50M
+            const medalGoal = document.getElementById('medal-goal');
+            if (totalGoldLogro >= 10000000 && totalGoldLogro < TOKEN_GOAL) {
+                medalGoal.classList.add('unlocked');
+                medalGoal.style.filter = "sepia(1) saturate(5) hue-rotate(-50deg)"; // Efecto Bronce/Cobre
+            } else if (metaPorcentaje >= 100) {
+                medalGoal.classList.add('unlocked');
+                medalGoal.style.filter = "none"; // Oro puro
+            }
         }
         actualizarMedallas();
     }
