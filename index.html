@@ -231,6 +231,37 @@
                 </div>
             </div>
 
+            <div class="panel" style="margin-bottom: 20px; border-left: 5px solid #3498db;">
+    <span class="stat-label" style="color: #3498db; font-size: 1.1em;">⏱️ Reloj de Asistencia - Bryan</span>
+    
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 0;">
+        <div style="flex: 1;">
+            <button id="btnAsistencia" onclick="toggleAsistencia()" 
+                style="padding: 12px 25px; cursor: pointer; background: #2ecc71; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 1em; transition: 0.3s;">
+                Loguear Ingreso
+            </button>
+        </div>
+        <div style="flex: 2; text-align: right;">
+            <p id="statusAsistencia" style="font-size: 0.9em; color: #bdc3c7; margin: 0;">Estado: <span style="color: #e74c3c;">Desconectado</span></p>
+        </div>
+    </div>
+
+    <div style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.8em; color: #ecf0f1;">
+            <thead>
+                <tr style="border-bottom: 1px solid #444; text-align: left; color: #3498db;">
+                    <th style="padding: 5px;">Fecha</th>
+                    <th>Entrada</th>
+                    <th>Salida</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoAsistencia">
+                </tbody>
+        </table>
+    </div>
+</div>
+
             <div class="dashboard-grid">
                 <div class="panel">
                     <span class="stat-label">Meta del Trabajo</span>
@@ -784,6 +815,60 @@
     function openModal() { document.getElementById('tableModal').style.display = "block"; }
     function closeModal() { document.getElementById('tableModal').style.display = "none"; }
     function resetForm() { document.getElementById('edit-id').value = ""; document.querySelectorAll('.farm-form input').forEach(i => i.value = ""); document.getElementById('btn-submit').innerText = "Guardar Botín"; resetTimer(); }
+
+    // --- SISTEMA DE ASISTENCIA CON MEMORIA ---
+let logueado = false;
+let horaIngreso = null;
+
+// Esto hace que los datos aparezcan apenas abres la página
+document.addEventListener('DOMContentLoaded', () => {
+    const logsGuardados = JSON.parse(localStorage.getItem('asistencia_logs')) || [];
+    // Los cargamos en la tabla
+    logsGuardados.forEach(log => {
+        const tabla = document.getElementById('cuerpoAsistencia');
+        const fila = `<tr><td style="padding:5px">${log.f}</td><td>${log.i}</td><td>${log.s}</td><td><strong>${log.t}</strong></td></tr>`;
+        tabla.innerHTML += fila;
+    });
+});
+
+function toggleAsistencia() {
+    const btn = document.getElementById('btnAsistencia');
+    const status = document.getElementById('statusAsistencia');
+    const ahora = new Date();
+    
+    if (!logueado) {
+        logueado = true;
+        horaIngreso = ahora;
+        btn.innerText = "Cerrar Sesión (Logout)";
+        btn.style.backgroundColor = "#e74c3c";
+        status.innerHTML = `Estado: <span style="color: #2ecc71;">Conectado desde ${ahora.toLocaleTimeString()}</span>`;
+    } else {
+        logueado = false;
+        const horaSalida = ahora;
+        const diff = horaSalida - horaIngreso;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const tiempoTotal = `${h}h ${m}m`;
+        
+        const fechaActual = horaIngreso.toLocaleDateString();
+        const ingresoTx = horaIngreso.toLocaleTimeString();
+        const salidaTx = horaSalida.toLocaleTimeString();
+
+        // 1. Lo ponemos en la tabla visualmente
+        const tabla = document.getElementById('cuerpoAsistencia');
+        const nuevaFila = `<tr><td style="padding:5px">${fechaActual}</td><td>${ingresoTx}</td><td>${salidaTx}</td><td><strong>${tiempoTotal}</strong></td></tr>`;
+        tabla.innerHTML = nuevaFila + tabla.innerHTML;
+
+        // 2. Lo guardamos en la "memoria" del navegador (LocalStorage)
+        const logs = JSON.parse(localStorage.getItem('asistencia_logs')) || [];
+        logs.unshift({ f: fechaActual, i: ingresoTx, s: salidaTx, t: tiempoTotal });
+        localStorage.setItem('asistencia_logs', JSON.stringify(logs));
+        
+        btn.innerText = "Loguear Ingreso";
+        btn.style.backgroundColor = "#2ecc71";
+        status.innerHTML = 'Estado: <span style="color: #e74c3c;">Desconectado</span>';
+    }
+}
 </script>
 </body>
 </html>
