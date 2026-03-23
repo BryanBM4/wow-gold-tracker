@@ -183,6 +183,16 @@
         .progress-bar.mid { background: linear-gradient(90deg, #757575, #bdbdbd); } /* Plata */
         .progress-bar.high { background: linear-gradient(90deg, #b38600, #f8b700); } /* Oro */
         .progress-bar.epic { background: linear-gradient(90deg, #ffea00, #ffffff); box-shadow: 0 0 20px #fff700; } /* Diamante / Legendario */
+
+        #motivation-text {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -226,6 +236,7 @@
                     <span class="stat-label">Meta del Trabajo</span>
                     <div class="progress-container"><div id="token-bar" class="progress-bar"></div></div>
                     <span id="token-status" style="font-size:0.9em; color:var(--gold)">0 / 0</span>
+                    <div id="motivation-text" style="font-size: 0.8em; color: #ffd700; margin-top: 8px; font-style: italic; font-weight: bold; display: block;"></div>
                 </div>
                 <div class="panel">
                     <span class="stat-label">Meta Diaria</span>
@@ -589,27 +600,28 @@
         if (diario >= DAILY_GOAL && oldDailyGold < DAILY_GOAL) sounds.levelUp.play();
         oldDailyGold = diario;
         
-        // --- CÁLCULO DE FALTANTE Y TOOLTIP (PUNTO 1) ---
+        // --- TEXTO MOTIVADOR PERMANENTE (REEMPLAZO) ---
         const faltante = TOKEN_GOAL - totalGold;
+        const motivationEl = document.getElementById('motivation-text');
         const statusEl = document.getElementById('token-status');
-        
-        // Buscamos la barra y su contenedor de forma directa
-        const barraActual = document.getElementById('token-bar');
-        const contenedorBarra = barraActual ? barraActual.parentElement : null;
 
-        if (faltante > 0) {
-            const faltanteM = (faltante / 1000000).toFixed(1);
-            const mensaje = `¡Ánimo Bryan! Faltan ${faltanteM}M para los 50M y la Libertad Total 🚀`;
-            
-            // Aplicamos el mensaje a todo lo que el usuario pueda tocar con el ratón
+        if (motivationEl) {
+            if (faltante > 0) {
+                // Calculamos los millones que faltan con un decimal
+                const faltanteM = (faltante / 1000000).toFixed(1);
+        
+                // Escribimos el mensaje directamente en pantalla
+                const mensaje = `¡Ánimo Bryan! Faltan ${faltanteM}M para los 50M 🚀`;
+                motivationEl.innerText = mensaje;
+                motivationEl.style.color = "#ffd700"; // Color dorado para motivar
+        
+                // También lo dejamos como "tooltip" por si acaso
             if (statusEl) statusEl.title = mensaje;
-            if (barraActual) barraActual.title = mensaje;
-            if (contenedorBarra) contenedorBarra.title = mensaje;
-            
-        } else {
-            const mensajeLogro = "¡OBJETIVO CUMPLIDO! Eres el Magnate de Azeroth 👑";
-            if (statusEl) statusEl.title = mensajeLogro;
-            if (barraActual) barraActual.title = mensajeLogro;
+            }    
+                else {
+                motivationEl.innerText = "¡OBJETIVO CUMPLIDO! Eres el Magnate de Azeroth 👑";
+                motivationEl.style.color = "#00ff00"; // Color verde éxito
+                }
         }
         
         const validSessions = farmData.filter(d => d.oph > 0);
