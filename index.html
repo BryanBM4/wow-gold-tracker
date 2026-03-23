@@ -589,14 +589,24 @@
         if (diario >= DAILY_GOAL && oldDailyGold < DAILY_GOAL) sounds.levelUp.play();
         oldDailyGold = diario;
         
+        // --- CÁLCULO DE FALTANTE Y TOOLTIP (PUNTO 1) ---
         const faltante = TOKEN_GOAL - totalGold;
         const statusEl = document.getElementById('token-status');
+        const barContainer = document.querySelector('.progress-container'); // O el contenedor de tu barra
+
         if (faltante > 0) {
-            // Calcula cuántos millones faltan con un decimal
             const faltanteM = (faltante / 1000000).toFixed(1);
-            statusEl.title = `¡Ánimo Bryan! Faltan ${faltanteM}M para los 50M y la Libertad Total 🚀`;
+            const mensaje = `¡Ánimo Bryan! Faltan ${faltanteM}M para los 50M y la Libertad Total 🚀`;
+            
+            // Lo aplicamos al texto Y al contenedor de la barra para que no falle
+            statusEl.title = mensaje;
+            if(barContainer) barContainer.title = mensaje;
+            tokenBar.title = mensaje; // También a la barra misma
+            
         } else {
-            statusEl.title = "¡OBJETIVO CUMPLIDO! Eres el Magnate de Azeroth 👑";
+            const mensajeLogro = "¡OBJETIVO CUMPLIDO! Eres el Magnate de Azeroth 👑";
+            statusEl.title = mensajeLogro;
+            tokenBar.title = mensajeLogro;
         }
         const validSessions = farmData.filter(d => d.oph > 0);
         const avgOPH = validSessions.length > 0 ? (validSessions.reduce((s, d) => s + d.oph, 0) / validSessions.length) : 0;
