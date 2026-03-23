@@ -254,6 +254,7 @@
                     <th>Entrada</th>
                     <th>Salida</th>
                     <th>Total</th>
+                    <th>Acción</th> </tr>
                 </tr>
             </thead>
             <tbody id="cuerpoAsistencia">
@@ -816,19 +817,15 @@
     function closeModal() { document.getElementById('tableModal').style.display = "none"; }
     function resetForm() { document.getElementById('edit-id').value = ""; document.querySelectorAll('.farm-form input').forEach(i => i.value = ""); document.getElementById('btn-submit').innerText = "Guardar Botín"; resetTimer(); }
 
-    // --- SISTEMA DE ASISTENCIA CON MEMORIA ---
+    // --- SISTEMA DE ASISTENCIA PROFESIONAL ---
 let logueado = false;
 let horaIngreso = null;
 
-// Esto hace que los datos aparezcan apenas abres la página
+// Cargar historial al abrir la página
 document.addEventListener('DOMContentLoaded', () => {
     const logsGuardados = JSON.parse(localStorage.getItem('asistencia_logs')) || [];
-    // Los cargamos en la tabla
-    logsGuardados.forEach(log => {
-        const tabla = document.getElementById('cuerpoAsistencia');
-        const fila = `<tr><td style="padding:5px">${log.f}</td><td>${log.i}</td><td>${log.s}</td><td><strong>${log.t}</strong></td></tr>`;
-        tabla.innerHTML += fila;
-    });
+    // Importante: No pasamos 'true' aquí para que no se dupliquen al cargar
+    logsGuardados.forEach(log => agregarFilaAsistencia(log.f, log.i, log.s, log.t, false));
 });
 
 function toggleAsistencia() {
@@ -854,19 +851,56 @@ function toggleAsistencia() {
         const ingresoTx = horaIngreso.toLocaleTimeString();
         const salidaTx = horaSalida.toLocaleTimeString();
 
-        // 1. Lo ponemos en la tabla visualmente
-        const tabla = document.getElementById('cuerpoAsistencia');
-        const nuevaFila = `<tr><td style="padding:5px">${fechaActual}</td><td>${ingresoTx}</td><td>${salidaTx}</td><td><strong>${tiempoTotal}</strong></td></tr>`;
-        tabla.innerHTML = nuevaFila + tabla.innerHTML;
-
-        // 2. Lo guardamos en la "memoria" del navegador (LocalStorage)
-        const logs = JSON.parse(localStorage.getItem('asistencia_logs')) || [];
-        logs.unshift({ f: fechaActual, i: ingresoTx, s: salidaTx, t: tiempoTotal });
-        localStorage.setItem('asistencia_logs', JSON.stringify(logs));
+        // Llamamos a la nueva función y le decimos que SÍ guarde (true)
+        agregarFilaAsistencia(fechaActual, ingresoTx, salidaTx, tiempoTotal, true);
         
         btn.innerText = "Loguear Ingreso";
         btn.style.backgroundColor = "#2ecc71";
         status.innerHTML = 'Estado: <span style="color: #e74c3c;">Desconectado</span>';
+    }
+}
+
+// ESTA ES LA FUNCIÓN QUE TE FALTABA
+function agregarFilaAsistencia(f, i, s, t, guardar) {
+    const tabla = document.getElementById('cuerpoAsistencia');
+    // Creamos un ID único para la fila usando la hora de ingreso (sin puntos)
+    const idFila = i.replace(/:/g, ''); 
+
+    const filaHTML = `
+        <tr id="fila-${idFila}">
+            <td style="padding:5px">${f}</td>
+            <td>${i}</td>
+            <td>${s}</td>
+            <td><strong>${t}</strong></td>
+            <td>
+                <button onclick="borrarFilaAsistencia('${idFila}', '${i}')" 
+                    style="background:none; border:none; color:#e74c3c; cursor:pointer; font-weight:bold; font-size:1.2em;">
+                    ×
+                </button>
+            </td>
+        </tr>`;
+    
+    // Insertar al inicio de la tabla
+    tabla.innerHTML = filaHTML + tabla.innerHTML;
+
+    if (guardar) {
+        const logs = JSON.parse(localStorage.getItem('asistencia_logs')) || [];
+        logs.unshift({ f, i, s, t });
+        localStorage.setItem('asistencia_logs', JSON.stringify(logs));
+    }
+}
+
+// Función para borrar de uno en uno
+function borrarFilaAsistencia(idUI, horaOriginal) {
+    if (confirm("¿Borrar este registro de asistencia?")) {
+        // 1. Borrar de la pantalla
+        const el = document.getElementById(`fila-${idUI}`);
+        if (el) el.remove();
+
+        // 2. Borrar de la memoria (LocalStorage)
+        let logs = JSON.parse(localStorage.getItem('asistencia_logs')) || [];
+        logs = logs.filter(log => log.i !== horaOriginal);
+        localStorage.setItem('asistencia_logs', JSON.stringify(logs));
     }
 }
 </script>
