@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bryan's Private Gold Tracker - V11.0 (Auto-Import)</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
@@ -193,6 +195,49 @@
             50% { opacity: 1; transform: scale(1.02); }
             100% { opacity: 0.7; transform: scale(1); }
         }
+
+        /* --- DISEÑO PARA MÓVILES --- */
+@media (max-width: 600px) {
+    /* 1. Hacemos que el grid sea de 1 sola columna */
+    .dashboard-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+    }
+
+    /* 2. Ajustamos los paneles para que ocupen todo el ancho */
+    .panel {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 15px;
+    }
+
+    /* 3. Tablas con scroll lateral para que no se corten */
+    .table-container, .panel div[style*="overflow-y"] {
+        overflow-x: auto;
+        display: block;
+    }
+
+    table {
+        min-width: 450px; /* Obliga a la tabla a mantener forma y dejarte deslizar */
+    }
+
+    /* 4. Textos un poco más grandes para leer fácil */
+    .stat-label {
+        font-size: 1em;
+    }
+
+    #token-status {
+        font-size: 1.1em;
+    }
+
+    /* 5. Botones más grandes para tocarlos con el dedo */
+    button {
+        padding: 15px !important;
+        font-size: 1.1em !important;
+    }
+}
     </style>
 </head>
 <body>
