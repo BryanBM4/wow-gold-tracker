@@ -364,7 +364,7 @@
 
             <div style="display: flex; gap: 20px; justify-content: center;">
                 <button class="btn-gold btn-history" style="max-width:300px;" onclick="openModal()">📜 Mostrar Historial</button>
-                <button class="btn-gold btn-excel" style="max-width:300px;" onclick="exportToCSV()">📥 Descargar Historial</button>
+                <button class="btn-gold btn-excel" style="max-width:300px;" onclick="exportToExcel()">📊 Descargar Historial</button>
             </div>
 
             <h3 class="section-title">📊 Comparativa: TWW vs. DF</h3>
@@ -856,11 +856,41 @@
         const filtered = farmData.filter(d => d.e.toLowerCase().includes(q) || d.z.toLowerCase().includes(q) || d.r.toLowerCase().includes(q));
         render(filtered);
     }
-    function exportToCSV() {
-        let csv = "Fecha,Exp,Zona,Material,Cantidad,Tiempo,Oro,OPH\n";
-        farmData.forEach(d => { csv += `${d.f},${d.e},${d.z},${d.r.replace(/,/g,'')},${d.c},${d.t},${d.g},${d.oph}\n`; });
-        const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv); link.download = `Farm_Bryan.csv`; link.click();
-    }
+
+    // Asegúrate de tener esto al principio de tu archivo JS o dentro de la función si usas require
+const XLSX = require('xlsx');
+
+function exportToExcel() {
+    // 1. Preparamos los datos con nombres de columna bonitos
+    const filasParaExcel = farmData.map(d => ({
+        "Fecha": d.f,
+        "Exp": d.e,
+        "Zona": d.z,
+        "Material": d.r,
+        "Cantidad": d.c,
+        "Tiempo": d.t,
+        "Oro Total": d.g,
+        "OPH": d.oph
+    }));
+
+    // 2. Creamos la hoja y el libro
+    const worksheet = XLSX.utils.json_to_sheet(filasParaExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Farm_DethStorm");
+
+    // 3. Ajuste de ancho de columnas (opcional, para que se vea pro)
+    const wscols = [
+        {wch: 12}, {wch: 8}, {wch: 20}, {wch: 25}, 
+        {wch: 10}, {wch: 10}, {wch: 15}, {wch: 15}
+    ];
+    worksheet['!cols'] = wscols;
+
+    // 4. Descarga el archivo directamente
+    XLSX.writeFile(workbook, `Farm_Bryan_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`);
+    
+    console.log("¡Excel generado con éxito, Bryan!");
+}
+
     function showToast() { var x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = "", 3000); }
     function openModal() { document.getElementById('tableModal').style.display = "block"; }
     function closeModal() { document.getElementById('tableModal').style.display = "none"; }
