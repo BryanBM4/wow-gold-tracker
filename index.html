@@ -458,6 +458,10 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    // --- AJUSTE PARA COMPATIBILIDAD CON APP DE ESCRITORIO ---
+    auth.settings.appVerificationDisabledForTesting = true;
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
     let farmData = [];
     let myChart, timerInterval, startTime = 0, elapsedTime = 0, isRunning = false;
     let oldDailyGold = 0;
