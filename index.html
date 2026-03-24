@@ -443,7 +443,7 @@
         <div style="font-size: 0.8em; color: #aaa;">¡Logro Desbloqueado!</div>
         <div id="achieve-title" style="font-size: 1.2em; font-weight: bold; margin-top: 5px;">Título del Logro</div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     // --- FIREBASE CONFIG ---
     const firebaseConfig = {
@@ -858,37 +858,48 @@
     }
 
     // Asegúrate de tener esto al principio de tu archivo JS o dentro de la función si usas require
-const XLSX = require('xlsx');
+//const XLSX = require('xlsx');
 
 function exportToExcel() {
-    // 1. Preparamos los datos con nombres de columna bonitos
-    const filasParaExcel = farmData.map(d => ({
-        "Fecha": d.f,
-        "Exp": d.e,
-        "Zona": d.z,
-        "Material": d.r,
-        "Cantidad": d.c,
-        "Tiempo": d.t,
-        "Oro Total": d.g,
-        "OPH": d.oph
-    }));
+    try {
+        // Detectamos si estamos en la App (Electron) o en la Web
+        let libExcel;
+        if (typeof require !== 'undefined') {
+            libExcel = require('xlsx');
+        } else {
+            libExcel = XLSX; // Esta es la que cargaste en la línea 446
+        }
 
-    // 2. Creamos la hoja y el libro
-    const worksheet = XLSX.utils.json_to_sheet(filasParaExcel);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Farm_DethStorm");
+        const filasParaExcel = farmData.map(d => ({
+            "Fecha": d.f,
+            "Exp": d.e,
+            "Zona": d.z,
+            "Material": d.r,
+            "Cantidad": d.c,
+            "Tiempo": d.t,
+            "Oro Total": d.g,
+            "OPH": d.oph
+        }));
 
-    // 3. Ajuste de ancho de columnas (opcional, para que se vea pro)
-    const wscols = [
-        {wch: 12}, {wch: 8}, {wch: 20}, {wch: 25}, 
-        {wch: 10}, {wch: 10}, {wch: 15}, {wch: 15}
-    ];
-    worksheet['!cols'] = wscols;
+        const worksheet = libExcel.utils.json_to_sheet(filasParaExcel);
+        const workbook = libExcel.utils.book_new();
+        libExcel.utils.book_append_sheet(workbook, worksheet, "Farm_DethStorm");
 
-    // 4. Descarga el archivo directamente
-    XLSX.writeFile(workbook, `Farm_Bryan_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`);
-    
-    console.log("¡Excel generado con éxito, Bryan!");
+        // Ajuste de columnas
+        worksheet['!cols'] = [
+            {wch: 12}, {wch: 8}, {wch: 20}, {wch: 25}, 
+            {wch: 10}, {wch: 10}, {wch: 15}, {wch: 15}
+        ];
+
+        // Descarga
+        libExcel.writeFile(workbook, `Farm_Bryan_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`);
+        
+        console.log("¡Excel generado con éxito!");
+
+    } catch (error) {
+        console.error("Error al exportar:", error);
+        alert("No se pudo generar el Excel. Revisa la consola.");
+    }
 }
 
     function showToast() { var x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = "", 3000); }
